@@ -1,0 +1,104 @@
+spring:
+  application:
+    name: api-gataway
+  profiles:
+    active: localhost
+  main:
+    allow-bean-definition-overriding: true
+    web-application-type: reactive
+  cloud:
+    gateway:
+      routes: 
+        - id: otel-service
+          uri: lb://OTEL-SERVICE/
+          predicates:
+            - Path=/api/hotels/**,/api/rooms/**
+        - id: reservation-service
+          uri: lb://RESERVATION-SERVICE/
+          predicates:
+            - Path=/api/reservations/**
+        - id: notification-service
+          uri: lb://NOTIFICATION-SERVICE/
+          predicates:
+            - Path=/api/notifications/**           
+         
+    discovery:
+      locator:
+        enabled: true
+        lower-case-service-id: true   
+          
+
+info:
+  component: Api Gateway Server
+
+---
+spring:
+  config:
+    activate:
+      on-profile: localhost
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        default_shema: public
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/rezervin"
+    username: rezervin
+    password: Asdf@1234 
+rezervin:
+  jwt-secret-key: "5234d20933436e28f12babc3b5169cd5c8b2a67542c6e7270c6ad18a37b2c6e36c47c51474567e969493ccb4ecf78897ac77d79bed5e08d158fa96aca7b0f375b0c78d7bbd19e3bf97fe60e93c3b754d52ac54f6832dd9092bb9417f53d2f2d4654e34ebfb8f58b9197b6936f86db7de7edb8fa56d21d075a9734e915f92eb31614febdd72f53ad53cd07ddd52649984b4730e6fd647740e037f27e753e94cc95de0d5c6903c8606d9cbdbc6385fdd9ba8d9ab908a851e6fd9ca4cf7727c00c744ae04b34be82d8bebe499d3e95403e98e3b9ed8172cf3da28722240ef77543e1bccff95d566fb0a06047752a06e606db43b85229af17da6d1e7246021304614"
+  expiration-time: 36000000
+  access-token-expire-time: 600000
+  refresh-token-expire-time: 1800000 
+
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka
+  instance:
+    instance-id: ${spring.application.name}:${random.uuid}
+    prefer-ip-address: true
+
+server:
+  port: 8762
+ 
+logging:
+  level:
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: DEBUG
+    org.springframework.security: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: stage
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        default_shema: public
+  datasource:
+    url: "jdbc:postgresql://postgres:5432/pandora"
+    username: pandora
+    password: Asdf@1234 
+rezervin: 
+  jwt-secret-key: "5234d20933436e28f12babc3b5169cd5c8b2a67542c6e7270c6ad18a37b2c6e36c47c51474567e969493ccb4ecf78897ac77d79bed5e08d158fa96aca7b0f375b0c78d7bbd19e3bf97fe60e93c3b754d52ac54f6832dd9092bb9417f53d2f2d4654e34ebfb8f58b9197b6936f86db7de7edb8fa56d21d075a9734e915f92eb31614febdd72f53ad53cd07ddd52649984b4730e6fd647740e037f27e753e94cc95de0d5c6903c8606d9cbdbc6385fdd9ba8d9ab908a851e6fd9ca4cf7727c00c744ae04b34be82d8bebe499d3e95403e98e3b9ed8172cf3da28722240ef77543e1bccff95d566fb0a06047752a06e606db43b85229af17da6d1e7246021304614"
+  expiration-time: 36000000
+  access-token-expire-time: 600000
+  refresh-token-expire-time: 1800000  
+  
+server:
+  port: 8762
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka
+  instance:
+    instance-id: ${spring.application.name}:${random.uuid}
+ 
